@@ -45,7 +45,9 @@ class MessageCard extends StatelessWidget {
               alignment: Alignment.centerRight,
               child: Padding(
                 padding: EdgeInsets.all(2.0),
-                child: Text(DateFormat("hh:mm").format(message.dateTimeSent),
+                child: Text(
+                    DateFormat("dd.MM.yyyy hh:mm")
+                        .format(message.dateTimeSent.toLocal()),
                     style: TextStyle(fontSize: 8)),
               )),
         ],

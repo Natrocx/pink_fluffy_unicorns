@@ -24,7 +24,7 @@ class _ChatState extends State<StatefulWidget> {
   bool _needsScroll = true;
 
   _ChatState(this.chatPartner, this._messageSender) {
-    messages = [Message("lol", true), Message("lal", false)];
+    messages = [];
     _messageSender.additionCallback = addMessage;
 
     _scrollController = ScrollController(keepScrollOffset: false);

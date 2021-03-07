@@ -25,27 +25,29 @@ class _ChatInputState extends State<ChatInput> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-                controller: textFieldValueHolder,
-                autocorrect: true,
-                decoration: InputDecoration(
-                    border: InputBorder.none, hintText: 'Enter a Message'),
-                onSubmitted: (_) {
-                  sendTextMessage();
-                }),
+    return Container(
+        color: Colors.black38,
+        child: Padding(
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                    controller: textFieldValueHolder,
+                    autocorrect: true,
+                    decoration: InputDecoration(
+                        border: InputBorder.none, hintText: 'Enter a Message'),
+                    onSubmitted: (_) {
+                      sendTextMessage();
+                    }),
+              ),
+              ElevatedButton(
+                onPressed: sendTextMessage,
+                child: Icon(Icons.message),
+              ),
+            ],
           ),
-          ElevatedButton(
-            onPressed: sendTextMessage,
-            child: Icon(Icons.message),
-          ),
-        ],
-      ),
-      padding: EdgeInsets.all(5.0),
-    );
+          padding: EdgeInsets.all(5.0),
+        ));
   }
 
   void sendTextMessage() async {
@@ -55,10 +57,12 @@ class _ChatInputState extends State<ChatInput> {
     Message message, pingpongMessage;
 
     if (result.isNotEmpty) {
-      message = Message(result, true);
+      message = Message(
+          textContent: result, isOwn: true, dateTimeSent: DateTime.now());
       sendSuccessful = messageSender.sendMessage(message);
 
-      pingpongMessage = Message(result, false);
+      pingpongMessage = Message(
+          textContent: result, isOwn: false, dateTimeSent: DateTime.now());
     } else {
       return;
     }

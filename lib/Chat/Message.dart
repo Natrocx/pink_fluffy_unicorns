@@ -1,26 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class Message {
   late final MessageType? messageType;
   final String textContent;
+  late final DateTime dateTimeSent;
 
   final bool isOwn;
   MessageStatus status = MessageStatus.Pending;
 
-  Message(this.textContent, this.isOwn) {
-    messageType = MessageType.Text;
-  }
+  Message(
+      {required this.textContent,
+      required this.isOwn,
+      this.messageType = MessageType.Text,
+      required this.dateTimeSent});
 }
 
 enum MessageType {
   Text,
 }
 
-enum MessageStatus {
-  Pending,
-  Failed,
-  Successful
-}
+enum MessageStatus { Pending, Failed, Successful }
 
 class MessageCard extends StatelessWidget {
   final Message message;
@@ -34,8 +34,23 @@ class MessageCard extends StatelessWidget {
       color = Colors.red[300];
     }
     return Card(
-      child: Padding(
-          padding: EdgeInsets.all(8.0), child: Text(message.textContent)),
+      child: Column(
+        children: [
+          Container(
+            child: Padding(
+                padding: EdgeInsets.all(8.0), child: Text(message.textContent)),
+            alignment: Alignment.centerRight,
+          ),
+          Container(
+              alignment: Alignment.centerRight,
+              child: Padding(
+                padding: EdgeInsets.all(2.0),
+                child: Text(DateFormat("hh:mm").format(message.dateTimeSent),
+                    style: TextStyle(fontSize: 8)),
+              )),
+        ],
+        mainAxisSize: MainAxisSize.min,
+      ),
       color: color,
     );
   }

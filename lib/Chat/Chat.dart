@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:pink_fluffy_unicorns/Chat/ChatAppBar.dart';
 import 'package:pink_fluffy_unicorns/Chat/ChatInput.dart';
 import 'package:pink_fluffy_unicorns/Chat/Message.dart';
 
 import '../MessageSender.dart';
+import '../User.dart';
 
 class Chat extends StatefulWidget {
-  final String chatPartner;
+  final User chatPartner;
   final MessageSender _messageSender;
 
   Chat(this.chatPartner, this._messageSender);
@@ -17,11 +19,12 @@ class Chat extends StatefulWidget {
 }
 
 class _ChatState extends State<StatefulWidget> {
-  final String chatPartner;
+  final User chatPartner;
   final MessageSender _messageSender;
   late List<Message> messages;
   late final ScrollController _scrollController;
   bool _needsScroll = true;
+  bool _userInfoOpened = false;
 
   _ChatState(this.chatPartner, this._messageSender) {
     messages = [];
@@ -57,8 +60,10 @@ class _ChatState extends State<StatefulWidget> {
     }).toList();
 
     return Scaffold(
-        appBar: AppBar(
-          title: Text(chatPartner),
+        appBar: ChatAppBar(
+          onTapCallback: toggleUserInfo,
+          chatPartner: chatPartner,
+          isExpanded: _userInfoOpened,
         ),
         body: Column(children: [
           Expanded(
@@ -95,4 +100,8 @@ class _ChatState extends State<StatefulWidget> {
   }
   */
 
+  void toggleUserInfo() {
+    _userInfoOpened = !_userInfoOpened;
+    setState(() {});
+  }
 }

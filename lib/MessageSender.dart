@@ -11,5 +11,4 @@ class MessageSender {
   Future<bool> sendMessage(Message message) async {
     return true;
   }
-
 }

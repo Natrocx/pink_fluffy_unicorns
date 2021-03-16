@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:pink_fluffy_unicorns/Chat/Chat.dart';
 
-import 'MessageSender.dart';
-import 'User.dart';
+import 'Chat/ChatList.dart';
 
 void main() {
   runApp(MyApp());
@@ -27,8 +25,11 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.red,
       ),*/
-      home: Chat(User("s200297@student.dhbw-mannheim.de", "Jonas Lauschke", 0),
-          MessageSender()),
+      //home: Chat(User("s200297@student.dhbw-mannheim.de", "Jonas Lauschke", 0),
+      //MessageSender()),
+      home: ChatList(
+        usersWithChats: null,
+      ),
     );
   }
 }

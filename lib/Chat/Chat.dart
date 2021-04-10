@@ -8,27 +8,27 @@ import '../User.dart';
 
 class Chat extends StatefulWidget {
   final User chatPartner;
-  final ChatService _messageSender;
 
-  Chat(this.chatPartner, this._messageSender);
+  Chat(this.chatPartner);
 
   @override
   _ChatState createState() {
-    return new _ChatState(chatPartner, _messageSender);
+    return new _ChatState(chatPartner);
   }
 }
 
 class _ChatState extends State<StatefulWidget> {
   final User chatPartner;
-  final ChatService _messageSender;
+  late final ChatService _messageSender;
   late Future<List<Message>> messages;
   late final ScrollController _scrollController;
-  bool _needsScroll = false;
+  bool _needsScroll = false; //throws error if true without content
   bool _userInfoOpened = false;
 
-  _ChatState(this.chatPartner, this._messageSender) {
+  _ChatState(this.chatPartner) {
     messages = ChatService.readChat(chatPartner.email);
-    _messageSender.additionCallback = addMessage;
+    _messageSender =
+        ChatService(user: chatPartner, additionCallback: addMessage);
 
     _scrollController = ScrollController(keepScrollOffset: false);
   }

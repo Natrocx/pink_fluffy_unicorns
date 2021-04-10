@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pink_fluffy_unicorns/MessageSender.dart';
 
 import '../User.dart';
 import 'Chat.dart';
@@ -30,9 +29,7 @@ class _ChatListState extends State<ChatList> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                Chat(user, ChatService(user: user))),
+                        MaterialPageRoute(builder: (context) => Chat(user)),
                       );
                     },
                     child: Center(

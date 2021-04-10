@@ -10,9 +10,7 @@ class ChatService {
   static late HashMap<String, List<Message>> chats;
   final User user;
 
-  ChatService({required this.user, Function(Message)? additionCallback}) {
-    this.additionCallback =
-        additionCallback ?? (_) => throw UnimplementedError();
+  ChatService({required this.user, required this.additionCallback}) {
     chats = HashMap();
   }
 

@@ -5,7 +5,7 @@ import '../MessageSender.dart';
 import 'Message.dart';
 
 class ChatInput extends StatefulWidget {
-  final MessageSender messageSender;
+  final ChatService messageSender;
 
   const ChatInput({Key? key, required this.messageSender}) : super(key: key);
 
@@ -17,7 +17,7 @@ class ChatInput extends StatefulWidget {
 
 class _ChatInputState extends State<ChatInput> {
   final textFieldValueHolder = TextEditingController();
-  final MessageSender messageSender;
+  final ChatService messageSender;
 
   String result = '';
 
@@ -53,16 +53,14 @@ class _ChatInputState extends State<ChatInput> {
   void sendTextMessage() async {
     result = textFieldValueHolder.text.trim();
     textFieldValueHolder.clear();
-    var sendSuccessful;
+    Future<MessageStatus> sendSuccessful;
     Message message, pingpongMessage;
 
     if (result.isNotEmpty) {
-      message = Message(
-          textContent: result, isOwn: true, dateTimeSent: DateTime.now());
-      sendSuccessful = messageSender.sendMessage(message);
+      message = Message(textContent: result, isOwn: true);
+      messageSender.sendMessage(message);
 
-      pingpongMessage = Message(
-          textContent: result, isOwn: false, dateTimeSent: DateTime.now());
+      pingpongMessage = Message(textContent: result, isOwn: false);
     } else {
       return;
     }
@@ -70,10 +68,6 @@ class _ChatInputState extends State<ChatInput> {
     messageSender.additionCallback(message);
     messageSender.additionCallback(pingpongMessage);
 
-    if (await sendSuccessful) {
-      message.status = MessageStatus.Successful;
-    } else {
-      message.status = MessageStatus.Failed;
-    }
+    // the message status is updated by messageSender.sendMessage
   }
 }

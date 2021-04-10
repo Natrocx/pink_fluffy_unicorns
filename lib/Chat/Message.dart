@@ -1,19 +1,26 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class Message {
-  late final MessageType? messageType;
   final String textContent;
   late final DateTime dateTimeSent;
+  late final int id;
 
   final bool isOwn;
   MessageStatus status = MessageStatus.Pending;
 
-  Message(
+  Message({required this.textContent, required this.isOwn}) {
+    id = Random().nextInt(0xffffffff);
+    dateTimeSent = DateTime.now();
+  }
+
+  Message.fromData(
       {required this.textContent,
       required this.isOwn,
-      this.messageType = MessageType.Text,
-      required this.dateTimeSent});
+      required this.dateTimeSent,
+      required this.id});
 }
 
 enum MessageType {
@@ -33,6 +40,23 @@ class MessageCard extends StatelessWidget {
     if (!message.isOwn) {
       color = Colors.red[300];
     }
+    IconData icon;
+    switch (message.status) {
+      case MessageStatus.Pending:
+        {
+          icon = Icons.access_time_sharp;
+        }
+        break;
+      case MessageStatus.Successful:
+        {
+          icon = Icons.check;
+        }
+        break;
+      case MessageStatus.Failed:
+        {
+          icon = Icons.error;
+        }
+    }
     return Card(
       child: Column(
         children: [
@@ -41,15 +65,15 @@ class MessageCard extends StatelessWidget {
                 padding: EdgeInsets.all(8.0), child: Text(message.textContent)),
             alignment: Alignment.centerRight,
           ),
-          Container(
-              alignment: Alignment.centerRight,
-              child: Padding(
-                padding: EdgeInsets.all(2.0),
-                child: Text(
+          Padding(
+              padding: EdgeInsets.all(2.0),
+              child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                Text(
                     DateFormat("dd.MM.yyyy hh:mm")
                         .format(message.dateTimeSent.toLocal()),
                     style: TextStyle(fontSize: 8)),
-              )),
+                Icon(icon, size: 10.0),
+              ])),
         ],
         mainAxisSize: MainAxisSize.min,
       ),

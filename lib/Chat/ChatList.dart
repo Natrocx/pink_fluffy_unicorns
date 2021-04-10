@@ -11,15 +11,14 @@ class ChatList extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    return _ChatListState(usersWithChats ?? [], new MessageSender());
+    return _ChatListState(usersWithChats ?? []);
   }
 }
 
 class _ChatListState extends State<ChatList> {
   List<User> usersWithChats;
-  MessageSender _messageSender;
 
-  _ChatListState(this.usersWithChats, this._messageSender);
+  _ChatListState(this.usersWithChats);
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +31,8 @@ class _ChatListState extends State<ChatList> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => Chat(user, _messageSender)),
+                            builder: (context) =>
+                                Chat(user, ChatService(user: user))),
                       );
                     },
                     child: Center(

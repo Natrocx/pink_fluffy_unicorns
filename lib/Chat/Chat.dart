@@ -19,25 +19,27 @@ class Chat extends StatefulWidget {
 
 class _ChatState extends State<StatefulWidget> {
   final User chatPartner;
-  late final ChatService _messageSender;
+  late final ChatService _chatService;
   late Future<List<Message>> messages;
   late final ScrollController _scrollController;
   bool _needsScroll = false; //throws error if true without content
   bool _userInfoOpened = false;
 
   _ChatState(this.chatPartner) {
-    messages = ChatService.readChat(chatPartner.email);
-    _messageSender =
-        ChatService(user: chatPartner, additionCallback: addMessage);
+    _chatService = ChatService(user: chatPartner, additionCallback: addMessage);
+    messages = _chatService.readChat();
 
     _scrollController = ScrollController(keepScrollOffset: false);
   }
 
   void addMessage(Message message) async {
-    this._needsScroll = true;
+    //this._needsScroll = true;
+
     (await messages).add(message);
-    this.setState(() {});
-    _messageSender
+    this.setState(() {
+      _scrollToEnd();
+    });
+    _chatService
         .sendMessage(message)
         .then((value) => message.status = value)
         .then((_) => this.setState(() {}));
@@ -54,38 +56,47 @@ class _ChatState extends State<StatefulWidget> {
     return Scaffold(
         appBar: ChatAppBar(
           onTapCallback: toggleUserInfo,
+          onPopCallback: dispose,
           chatPartner: chatPartner,
           isExpanded: _userInfoOpened,
         ),
         body: FutureBuilder(
             future: messages,
-            builder: (ctx, AsyncSnapshot<List<Message>> snapshot) =>
-                snapshot.hasData
-                    ? Column(children: [
-                        Expanded(
-                            child: ListView(
-                          controller: _scrollController,
-                          physics: AlwaysScrollableScrollPhysics(),
-                          children: snapshot.data!.map((message) {
-                            var insets;
-                            var totalWidth = MediaQuery.of(context).size.width;
-                            if (message.isOwn) {
-                              insets = EdgeInsets.fromLTRB(
-                                  totalWidth * 0.2, 0, totalWidth * 0.01, 0);
-                            } else {
-                              insets = EdgeInsets.fromLTRB(
-                                  totalWidth * 0.01, 0, totalWidth * 0.2, 0);
-                            }
-                            return Padding(
-                                child: MessageCard(message), padding: insets);
-                          }).toList(),
-                          shrinkWrap: true,
-                        )),
-                        // Custom input widget
-                        ChatInput(messageSender: _messageSender)
-                      ])
-                    // if the future hasn't computed yet
-                    : CircularProgressIndicator()));
+            builder: (ctx, AsyncSnapshot<List<Message>> snapshot) {
+              if (snapshot.hasData) {
+                if (snapshot.data!.isNotEmpty)
+                  WidgetsBinding.instance!
+                      .addPostFrameCallback((_) => _scrollToEnd());
+
+                return Column(children: [
+                  Expanded(
+                      child: ListView(
+                    controller: _scrollController,
+                    physics: AlwaysScrollableScrollPhysics(),
+                    children: snapshot.data!.map((message) {
+                      var insets;
+                      var totalWidth = MediaQuery.of(context).size.width;
+                      if (message.isOwn) {
+                        insets = EdgeInsets.fromLTRB(
+                            totalWidth * 0.2, 0, totalWidth * 0.01, 0);
+                      } else {
+                        insets = EdgeInsets.fromLTRB(
+                            totalWidth * 0.01, 0, totalWidth * 0.2, 0);
+                      }
+                      return Padding(
+                          child: MessageCard(message), padding: insets);
+                    }).toList(),
+                    shrinkWrap: true,
+                  )),
+                  // Custom input widget
+                  ChatInput(messageSender: _chatService)
+                ]);
+              }
+              // if the future hasn't computed yet
+              return snapshot.hasError
+                  ? Center(child: Text("Error"))
+                  : Center(child: CircularProgressIndicator());
+            }));
   }
 
   _scrollToEnd() {
@@ -93,25 +104,14 @@ class _ChatState extends State<StatefulWidget> {
         duration: Duration(milliseconds: 200), curve: Curves.easeInOut);
   }
 
-/*
-  void _addMessageCard(Message message) {
-    var insets;
-    var totalWidth = MediaQuery.of(context).size.width;
-    if (message.isOwn) {
-      insets = EdgeInsets.fromLTRB(totalWidth * 0.2, 0, totalWidth * 0.01, 0);
-    } else {
-      insets = EdgeInsets.fromLTRB(
-          totalWidth * 0.01, 0, totalWidth * 0.2, 0);
-    }
-
-    this
-        ._messageCards
-        .add(Padding(child: MessageCard(message), padding: insets));
-  }
-  */
-
   void toggleUserInfo() {
     _userInfoOpened = !_userInfoOpened;
     setState(() {});
+  }
+
+  // cleanup tasks and serialization
+  void dispose() {
+    _chatService.writeChat(messages);
+    super.dispose();
   }
 }

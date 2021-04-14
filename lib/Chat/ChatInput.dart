@@ -57,10 +57,11 @@ class _ChatInputState extends State<ChatInput> {
     Message message, pingpongMessage;
 
     if (result.isNotEmpty) {
-      message = Message(textContent: result, isOwn: true);
+      message = Message(textContent: result, sender: ChatService.ownEMail());
       messageSender.sendMessage(message);
 
-      pingpongMessage = Message(textContent: result, isOwn: false);
+      pingpongMessage =
+          Message(textContent: result, sender: messageSender.user.email);
     } else {
       return;
     }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pink_fluffy_unicorns/MessageSender.dart';
 
 import 'Chat/ChatList.dart';
 
@@ -10,10 +11,12 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    ChatService.writeOwn(email: "s123456@student.dhbw-mannheim.de");
+
     return MaterialApp(
-      title: 'StudConnect',
-      theme: ThemeData.dark(),
-      /*ThemeData(
+        title: 'StudConnect',
+        theme: ThemeData.dark(),
+        /*ThemeData(
         // This is the theme of your application.
         //
         // Try running your application with "flutter run". You'll see the
@@ -25,11 +28,13 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.red,
       ),*/
-      //home: Chat(User("s200297@student.dhbw-mannheim.de", "Jonas Lauschke", 0),
-      //MessageSender()),
-      home: ChatList(
-        usersWithChats: null,
-      ),
-    );
+        //home: Chat(User("s200297@student.dhbw-mannheim.de", "Jonas Lauschke", 0),
+        //MessageSender()),
+        initialRoute: ChatList.routeName,
+        routes: {
+          ChatList.routeName: (ctx) => ChatList(),
+          ExtractArgumentsChatListScreen.routeName: (ctx) =>
+              ExtractArgumentsChatListScreen()
+        });
   }
 }

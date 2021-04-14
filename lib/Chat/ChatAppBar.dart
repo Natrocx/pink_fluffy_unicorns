@@ -4,6 +4,7 @@ import '../User.dart';
 
 class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback onTapCallback;
+  final VoidCallback onPopCallback;
   final User chatPartner;
   late final Text bottomText;
   late bool isExpanded;
@@ -13,7 +14,8 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
       {Key? key,
       required this.onTapCallback,
       required this.chatPartner,
-      isExpanded})
+      isExpanded,
+      required this.onPopCallback})
       : super(key: key) {
     bottomText = Text(chatPartner.email, key: _key);
     this.isExpanded = isExpanded ?? false;
@@ -25,6 +27,23 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
         onTap: this.onTap,
         child: AppBar(
           title: Text(chatPartner.displayName),
+          leading: Builder(
+            builder: (BuildContext context) {
+              return IconButton(
+                  icon: const Icon(Icons.arrow_back_ios),
+                  onPressed: () {
+                    this.onPopCallback();
+                    Navigator.pop(context);
+                  }
+                  /* Inefficient due to large number of Widget rebuilds - keeping for now...
+                    Navigator.popAndPushNamed(
+                    context, ExtractArgumentsChatListScreen.routeName,
+                    arguments: ChatListScreenArguments(chatPartner.email)),
+                tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
+                     */
+                  );
+            },
+          ),
           bottom: isExpanded
               ? PreferredSize(
 

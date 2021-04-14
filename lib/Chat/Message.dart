@@ -2,25 +2,49 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:json_annotation/json_annotation.dart';
 
+import '../MessageSender.dart';
+
+@JsonSerializable()
 class Message {
   final String textContent;
   late final DateTime dateTimeSent;
   late final int id;
 
-  final bool isOwn;
+  late final bool isOwn;
+  final String sender;
   MessageStatus status = MessageStatus.Pending;
 
-  Message({required this.textContent, required this.isOwn}) {
-    id = Random().nextInt(0xffffffff);
+  Message({required this.textContent, required this.sender}) {
+    id = Random().nextInt(1 << 32);
+    isOwn = ChatService.ownEMail() == sender;
     dateTimeSent = DateTime.now();
   }
 
   Message.fromData(
       {required this.textContent,
-      required this.isOwn,
+      required this.sender,
       required this.dateTimeSent,
-      required this.id});
+      required this.id,
+      MessageStatus? status}) {
+    isOwn = sender == ChatService.ownEMail();
+    this.status = status ?? this.status;
+  }
+
+  factory Message.fromJson(Map<String, dynamic> json) => Message.fromData(
+      textContent: json["textContent"] as String,
+      sender: json["sender"] as String,
+      dateTimeSent: DateTime.parse(json["sent"] as String),
+      id: json["id"] as int,
+      status: MessageStatus.values[json["status"]]);
+  Map<String, dynamic> toJson() => {
+        "textContent": textContent,
+        "sender": sender,
+        "sent": dateTimeSent.toIso8601String(),
+        "id": id,
+        "status": status.index
+      };
 }
 
 enum MessageType {
@@ -72,7 +96,7 @@ class MessageCard extends StatelessWidget {
                     DateFormat("dd.MM.yyyy hh:mm")
                         .format(message.dateTimeSent.toLocal()),
                     style: TextStyle(fontSize: 8)),
-                Icon(icon, size: 10.0),
+                Icon(icon, size: message.isOwn ? 10.0 : 0.0),
               ])),
         ],
         mainAxisSize: MainAxisSize.min,

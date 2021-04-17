@@ -7,6 +7,7 @@ import '../MessageSender.dart';
 import '../User.dart';
 
 class Chat extends StatefulWidget {
+  static const String routeName = "/Chat";
   final User chatPartner;
 
   Chat(this.chatPartner);
@@ -22,7 +23,6 @@ class _ChatState extends State<StatefulWidget> {
   late final ChatService _chatService;
   late Future<List<Message>> messages;
   late final ScrollController _scrollController;
-  bool _needsScroll = false; //throws error if true without content
   bool _userInfoOpened = false;
 
   _ChatState(this.chatPartner) {
@@ -47,11 +47,12 @@ class _ChatState extends State<StatefulWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // automatically scroll ListView
+    /*/ automatically scroll ListView
     if (_needsScroll) {
       WidgetsBinding.instance!.addPostFrameCallback((_) => _scrollToEnd());
       _needsScroll = false;
     }
+     */
 
     return Scaffold(
         appBar: ChatAppBar(
@@ -110,6 +111,8 @@ class _ChatState extends State<StatefulWidget> {
   }
 
   // cleanup tasks and serialization
+  // for some reason this gets called twice but I have no clue why.
+  // It throws an error but it's caught so.... alright I guess?
   void dispose() {
     _chatService.writeChat(messages);
     super.dispose();

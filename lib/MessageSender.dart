@@ -43,7 +43,7 @@ class ChatService {
 
   static Future<List<User>> readAllChatPartners() async {
     await _ownStorage.ready;
-    return ((_ownStorage.getItem("chats") ?? []) as List<Map<String, dynamic>>)
+    return ((_ownStorage.getItem("chats") ?? []) as List<dynamic>)
         .map((e) => User.fromJson(e))
         .toList();
   }

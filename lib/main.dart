@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pink_fluffy_unicorns/Greeter.dart';
 import 'package:pink_fluffy_unicorns/MessageSender.dart';
 
 import 'Chat/ChatList.dart';
@@ -33,8 +34,9 @@ class MyApp extends StatelessWidget {
         initialRoute: ChatList.routeName,
         routes: {
           ChatList.routeName: (ctx) => ChatList(),
-          ExtractArgumentsChatListScreen.routeName: (ctx) =>
-              ExtractArgumentsChatListScreen()
+          Greeter.routeName: (ctx) => Greeter(),
+          ExtractArgumentsChatScreen.routeName: (ctx) =>
+              ExtractArgumentsChatScreen()
         });
   }
 }

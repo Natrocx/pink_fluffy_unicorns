@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pink_fluffy_unicorns/QueryService.dart';
 
 import '../MessageSender.dart';
 import '../User.dart';
@@ -16,6 +17,9 @@ class ChatList extends StatefulWidget {
 
 class _ChatListState extends State<ChatList> {
   late Future<List<User>> usersWithChats;
+  final _scrollController = ScrollController(keepScrollOffset: false);
+  final TextEditingController _addChatController = TextEditingController();
+  final Key _addChatSubmit = Key("_addChatSubmitKey");
 
   _ChatListState() {
     usersWithChats = ChatService.readAllChatPartners();
@@ -28,6 +32,13 @@ class _ChatListState extends State<ChatList> {
         builder: (context, AsyncSnapshot<List<User>> snapshot) {
           if (!snapshot.hasData)
             return Center(child: CircularProgressIndicator());
+
+          if ((snapshot.data!.length) > 0)
+            WidgetsBinding.instance!.addPostFrameCallback((_) =>
+                _scrollController.animateTo(
+                    _scrollController.position.maxScrollExtent,
+                    duration: Duration(milliseconds: 300),
+                    curve: Curves.fastOutSlowIn));
 
           var usersWithChats = snapshot.data ?? [];
           var child = usersWithChats.isEmpty
@@ -49,6 +60,7 @@ class _ChatListState extends State<ChatList> {
                       .toList(),
                   shrinkWrap: true,
                   reverse: true,
+                  controller: _scrollController,
                 );
           return new Scaffold(
             appBar: AppBar(
@@ -57,38 +69,121 @@ class _ChatListState extends State<ChatList> {
             ),
             body: child,
             floatingActionButton: IconButton(
-              onPressed: addChat,
+              onPressed: () {
+                showDialog(context: context, builder: _buildAddChatDialog);
+              },
               icon: Icon(Icons.add),
             ),
           );
         });
   }
 
-  Future<void> addChat() async {
-    (await usersWithChats)
-        .add(User("s200297@student.dhbw-mannheim.de", "Jonas Lauschke", 0));
-    setState(() {});
+  Widget _buildAddChatDialog(BuildContext context) {
+    return AlertDialog(
+      title: Text("Neuen Chat eröffnen"),
+      content: Row(children: [
+        Padding(
+            padding: EdgeInsets.fromLTRB(0.0, 0.0, 8.0, 0.0),
+            child: Text("E-Mail:")),
+        Expanded(
+            child: TextField(
+          controller: _addChatController,
+        )),
+      ]),
+      actions: [
+        TextButton(
+            onPressed: Navigator.of(context).pop, child: Text("Abbrechen")),
+        TextButton(
+            onPressed: () {
+              showDialog(context: context, builder: _addRandomChatDialog);
+            },
+            child: Text("Zufall")),
+        TextButton(
+            key: _addChatSubmit,
+            onPressed: () {
+              _addChat(context);
+            },
+            child: Text("Chat eröffnen")),
+      ],
+    );
+  }
+
+  Future<bool> _addChat(BuildContext context) async {
+    User user;
+    try {
+      user = await QueryService.getUserInfo(_addChatController.text);
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Dieser Nutzer ist nicht registriert.")));
+      Navigator.pop(context);
+      return false;
+    }
+
+    // prepend
+    (await usersWithChats).add(user);
+    var scroll = (await usersWithChats).length > 1;
+
+    setState(() {
+      if (scroll) _addChatController.clear();
+      Navigator.popAndPushNamed(context, ExtractArgumentsChatScreen.routeName,
+          arguments: ChatScreenArguments(user));
+    });
+
+    return true;
+  }
+
+  Widget _addRandomChatDialog(BuildContext context) {
+    return AlertDialog(
+      title: Text("Zufälligen Chat Starten"),
+      actions: [
+        TextButton(
+            onPressed: Navigator.of(context).pop, child: Text("Abbrechen"))
+      ],
+    );
+  }
+
+  Future<void> _addRandomChat() async {
+    User user;
+    try {
+      user = await QueryService.getRandomUserSuggestion();
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Der Server hat die Anfrage abgelehnt.")));
+      Navigator.pop(context);
+      return;
+    }
+
+    // prepend
+    (await usersWithChats).add(user);
+    setState(() {
+      _scrollController.animateTo(_scrollController.position.maxScrollExtent,
+          duration: Duration(milliseconds: 500), curve: Curves.easeInOut);
+      Navigator.popAndPushNamed(context, ExtractArgumentsChatScreen.routeName,
+          arguments: ChatScreenArguments(user));
+    });
+
+    return;
   }
 }
 
-class ChatListScreenArguments {
-  final String chatPartner;
+class ChatScreenArguments {
+  final User chatPartner;
 
-  ChatListScreenArguments(this.chatPartner);
+  ChatScreenArguments(this.chatPartner);
 }
 
 // A Widget that extracts the necessary arguments from
 // the ModalRoute.
-class ExtractArgumentsChatListScreen extends StatelessWidget {
-  static const routeName = '/ChatList/args';
+class ExtractArgumentsChatScreen extends StatelessWidget {
+  static const routeName = '/Chat/fromUser';
 
   @override
   Widget build(BuildContext context) {
     // Extract the arguments from the current ModalRoute
     // settings and cast them as ScreenArguments.
-    final ChatListScreenArguments args =
-        ModalRoute.of(context)!.settings.arguments as ChatListScreenArguments;
+    final ChatScreenArguments args =
+        ModalRoute.of(context)!.settings.arguments as ChatScreenArguments;
 
-    return ChatList();
+    return Chat(args.chatPartner);
   }
 }

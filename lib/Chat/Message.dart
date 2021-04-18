@@ -17,7 +17,7 @@ class Message {
   MessageStatus status = MessageStatus.Pending;
 
   Message({required this.textContent, required this.sender}) {
-    id = Random().nextInt(1 << 32);
+    id = Random().nextInt(1 << 31);
     isOwn = ChatService.ownEMail() == sender;
     dateTimeSent = DateTime.now();
   }

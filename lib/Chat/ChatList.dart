@@ -15,7 +15,7 @@ class ChatList extends StatefulWidget {
   }
 }
 
-class _ChatListState extends State<ChatList> {
+class _ChatListState extends State<ChatList> with WidgetsBindingObserver {
   late Future<List<User>> usersWithChats;
   final _scrollController = ScrollController(keepScrollOffset: false);
   final TextEditingController _addChatController = TextEditingController();
@@ -113,13 +113,18 @@ class _ChatListState extends State<ChatList> {
     try {
       user = await QueryService.getUserInfo(_addChatController.text);
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Dieser Nutzer ist nicht registriert.")));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content:
+              Text("Dieser Nutzer ist nicht registriert." + error.toString())));
       Navigator.pop(context);
       return false;
     }
 
-    // prepend
+    _addChatInternal(user);
+    return true;
+  }
+
+  void _addChatInternal(User user) async {
     (await usersWithChats).add(user);
     var scroll = (await usersWithChats).length > 1;
 
@@ -129,7 +134,8 @@ class _ChatListState extends State<ChatList> {
           arguments: ChatScreenArguments(user));
     });
 
-    return true;
+    ChatService.writeAllChatPartners(usersWithChats);
+    _addChatController.clear();
   }
 
   Widget _addRandomChatDialog(BuildContext context) {
@@ -153,16 +159,38 @@ class _ChatListState extends State<ChatList> {
       return;
     }
 
-    // prepend
-    (await usersWithChats).add(user);
-    setState(() {
-      _scrollController.animateTo(_scrollController.position.maxScrollExtent,
-          duration: Duration(milliseconds: 500), curve: Curves.easeInOut);
-      Navigator.popAndPushNamed(context, ExtractArgumentsChatScreen.routeName,
-          arguments: ChatScreenArguments(user));
-    });
-
+    _addChatInternal(user);
     return;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance!.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance!.removeObserver(this);
+    super.dispose();
+  }
+
+  /// This should theoretically call writeAllChatPartners when the App is closed
+  /// but it appears to be bugged so it doesn't so it will be done at _addChatInternal
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.paused:
+      case AppLifecycleState.detached:
+        {
+          ChatService.writeAllChatPartners(usersWithChats);
+        }
+        break;
+      case AppLifecycleState.resumed:
+        // TODO: Maybe fetch updates from Server?
+        break;
+    }
   }
 }
 

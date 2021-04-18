@@ -57,7 +57,7 @@ class _ChatInputState extends State<ChatInput> {
     Message message, pingpongMessage;
 
     if (result.isNotEmpty) {
-      message = Message(textContent: result, sender: ChatService.ownEMail());
+      message = Message(textContent: result, sender: ChatService.ownEMail()!);
       messageSender.sendMessage(message);
 
       pingpongMessage =

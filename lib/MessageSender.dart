@@ -12,7 +12,7 @@ class ChatService {
   //late List<Message> messages;
   final User user;
   late final LocalStorage _localStorage;
-  static String? _ownEMail;
+  static String? _ownEMail = null;
   static final LocalStorage _ownStorage = LocalStorage("own");
 
   ChatService({required this.user, required this.additionCallback}) {
@@ -48,17 +48,22 @@ class ChatService {
         .toList();
   }
 
-  static Future<void> writeAllChatPartners(List<User> users) async {
+  static Future<void> writeAllChatPartners(Future<List<User>> users) async {
     await _ownStorage.ready;
-    _ownStorage.setItem("chats", users);
+    _ownStorage.setItem("chats", await users);
   }
 
-  static String ownEMail() {
+  static String? ownEMail() {
     // we trust that _ownStorage will be ready when this is first called
     if (_ownEMail == null) {
-      _ownEMail = _ownStorage.getItem("email")!;
+      _ownEMail = _ownStorage.getItem("email");
     }
-    return _ownEMail!;
+    return _ownEMail;
+  }
+
+  static Future<String?> ownEMailAsync() async {
+    await _ownStorage.ready;
+    return ownEMail();
   }
 
   static void writeOwn({required String email}) {

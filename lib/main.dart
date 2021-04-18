@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
       ),*/
         //home: Chat(User("s200297@student.dhbw-mannheim.de", "Jonas Lauschke", 0),
         //MessageSender()),
-        initialRoute: ChatList.routeName,
+        initialRoute: Greeter.routeName,
         routes: {
           ChatList.routeName: (ctx) => ChatList(),
           Greeter.routeName: (ctx) => Greeter(),

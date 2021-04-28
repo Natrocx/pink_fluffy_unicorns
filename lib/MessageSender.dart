@@ -6,7 +6,7 @@ import 'package:pink_fluffy_unicorns/User.dart';
 import 'Chat/Message.dart';
 
 class ChatService {
-  /// Callback do be registered dynamically for adding data to the UI
+  /// Callback to be registered dynamically for adding data to the UI
   late Function(Message) additionCallback;
   static late HashMap<String, List<Message>> chats = HashMap();
   //late List<Message> messages;
@@ -68,5 +68,14 @@ class ChatService {
 
   static void writeOwn({required String email}) {
     _ownStorage.ready.then((value) => _ownStorage.setItem("email", email));
+  }
+
+  static void clearAllData() async {
+    for (User user in await ChatService.readAllChatPartners()) {
+      var _storage = LocalStorage(user.email);
+      await _storage.ready;
+      _storage.clear();
+    }
+    _ownStorage.clear();
   }
 }

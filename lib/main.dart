@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pink_fluffy_unicorns/Greeter.dart';
-import 'package:pink_fluffy_unicorns/MessageSender.dart';
 
 import 'Chat/ChatList.dart';
+import 'MessageSender.dart';
 
 void main() {
   runApp(MyApp());
@@ -12,7 +12,8 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    ChatService.writeOwn(email: "s123456@student.dhbw-mannheim.de");
+    //ChatService.writeOwn(email: "s123456@student.dhbw-mannheim.de");
+    ChatService.clearAllData();
 
     return MaterialApp(
         title: 'StudConnect',

@@ -72,12 +72,16 @@ class Greeter extends StatelessWidget {
                         child: Text("*E-Mail:"),
                       ),
                       Padding(
-                        padding: EdgeInsets.all(4.0),
-                        child: TextField(
-                          controller: _emailController,
-                          keyboardType: TextInputType.emailAddress,
-                        ),
-                      ),
+                          padding: EdgeInsets.all(4.0),
+                          child: Column(children: [
+                            TextField(
+                              controller: _emailController,
+                              keyboardType: TextInputType.emailAddress,
+                            ),
+                            Text(
+                                "Es muss eine offizielle DHBW-E-Mail verwendet werden.",
+                                textScaleFactor: 0.8)
+                          ])),
                     ]),
                     TableRow(children: [
                       Padding(

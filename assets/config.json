@@ -1,0 +1,16 @@
+{
+  "name": "PinkFluffyUnicornsFonts",
+  "css_prefix_text": "",
+  "css_use_suffix": false,
+  "hinting": true,
+  "units_per_em": 1000,
+  "ascent": 850,
+  "glyphs": [
+    {
+      "uid": "1909c7616d38a39f90d31093df9d718d",
+      "css": "random",
+      "code": 61556,
+      "src": "fontawesome5"
+    }
+  ]
+}

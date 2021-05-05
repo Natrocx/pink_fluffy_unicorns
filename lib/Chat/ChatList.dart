@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pink_fluffy_unicorns/QueryService.dart';
+import 'package:pink_fluffy_unicorns/pink_fluffy_unicorns_fonts_icons.dart';
 
 import '../MessageSender.dart';
 import '../User.dart';
@@ -63,18 +64,29 @@ class _ChatListState extends State<ChatList> with WidgetsBindingObserver {
                   controller: _scrollController,
                 );
           return new Scaffold(
-            appBar: AppBar(
-              title: Text("Chats"),
-              leading: Builder(builder: (ctx) => Text("")),
-            ),
-            body: child,
-            floatingActionButton: IconButton(
-              onPressed: () {
-                showDialog(context: context, builder: _buildAddChatDialog);
-              },
-              icon: Icon(Icons.add),
-            ),
-          );
+              appBar: AppBar(
+                title: Text("Chats"),
+                leading: Builder(builder: (ctx) => Text("")),
+              ),
+              body: child,
+              floatingActionButton: Stack(children: [
+                IconButton(
+                  onPressed: () {
+                    showDialog(context: context, builder: _addRandomChatDialog);
+                  },
+                  icon: Icon(PinkFluffyUnicornsFonts.random),
+                ),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(0, 50, 0, 0),
+                  child: IconButton(
+                    onPressed: () {
+                      showDialog(
+                          context: context, builder: _buildAddChatDialog);
+                    },
+                    icon: Icon(Icons.add),
+                  ),
+                ),
+              ]));
         });
   }
 
@@ -93,11 +105,6 @@ class _ChatListState extends State<ChatList> with WidgetsBindingObserver {
       actions: [
         TextButton(
             onPressed: Navigator.of(context).pop, child: Text("Abbrechen")),
-        TextButton(
-            onPressed: () {
-              showDialog(context: context, builder: _addRandomChatDialog);
-            },
-            child: Text("Zufall")),
         TextButton(
             key: _addChatSubmit,
             onPressed: () {

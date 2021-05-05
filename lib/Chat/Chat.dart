@@ -3,7 +3,7 @@ import 'package:pink_fluffy_unicorns/Chat/ChatAppBar.dart';
 import 'package:pink_fluffy_unicorns/Chat/ChatInput.dart';
 import 'package:pink_fluffy_unicorns/Chat/Message.dart';
 
-import '../MessageSender.dart';
+import '../ChatService.dart';
 import '../User.dart';
 
 class Chat extends StatefulWidget {

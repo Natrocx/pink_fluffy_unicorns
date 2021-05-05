@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pink_fluffy_unicorns/QueryService.dart';
 import 'package:pink_fluffy_unicorns/pink_fluffy_unicorns_fonts_icons.dart';
 
-import '../MessageSender.dart';
+import '../ChatService.dart';
 import '../User.dart';
 import 'Chat.dart';
 

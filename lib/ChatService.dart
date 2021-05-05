@@ -66,8 +66,20 @@ class ChatService {
     return ownEMail();
   }
 
-  static void writeOwn({required String email}) {
-    _ownStorage.ready.then((value) => _ownStorage.setItem("email", email));
+  static void writeOwn(
+      {required String email,
+      required String password,
+      required AccountType accountType}) {
+    _ownStorage.ready.then((_) {
+      _ownStorage.setItem("email", email);
+      _ownStorage.setItem("password", password);
+      _ownStorage.setItem("accountType", accountType.index);
+    });
+  }
+
+  static void writeAppStatus(AppStatus status) async {
+    _ownStorage.ready
+        .then((_) => _ownStorage.setItem("appStatus", status.index));
   }
 
   static void clearAllData() async {
@@ -79,3 +91,5 @@ class ChatService {
     _ownStorage.clear();
   }
 }
+
+enum AppStatus { GreeterPending, RegistrationPending, Operational }

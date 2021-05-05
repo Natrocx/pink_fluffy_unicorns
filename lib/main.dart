@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:pink_fluffy_unicorns/Greeter.dart';
 
 import 'Chat/ChatList.dart';
@@ -18,6 +19,15 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         title: 'StudConnect',
         theme: ThemeData.dark(),
+        localizationsDelegates: [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: [
+          //const Locale('en', ''), // TBD?
+          const Locale('de', ''),
+        ],
         /*ThemeData(
         // This is the theme of your application.
         //

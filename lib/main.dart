@@ -3,7 +3,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:pink_fluffy_unicorns/Greeter.dart';
 
 import 'Chat/ChatList.dart';
-import 'ChatService.dart';
 
 void main() {
   runApp(MyApp());
@@ -14,7 +13,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     //ChatService.writeOwn(email: "s123456@student.dhbw-mannheim.de");
-    ChatService.clearAllData();
+    //ChatService.clearAllData();
 
     return MaterialApp(
         title: 'StudConnect',

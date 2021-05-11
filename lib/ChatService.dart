@@ -71,15 +71,37 @@ class ChatService {
       required String password,
       required AccountType accountType}) {
     _ownStorage.ready.then((_) {
-      _ownStorage.setItem("email", email);
-      _ownStorage.setItem("password", password);
-      _ownStorage.setItem("accountType", accountType.index);
+      _ownStorage
+        ..setItem("email", email)
+        ..setItem("password", password)
+        ..setItem("accountType", accountType.index);
+    });
+  }
+
+  static void writeProfile(
+      {required String partner,
+      required String biography,
+      required DateTime immatriculation,
+      required DateTime exmatriculation}) {
+    _ownStorage.ready.then((value) {
+      _ownStorage
+        ..setItem("partner", partner)
+        ..setItem("biography", biography)
+        ..setItem("immatriculation", immatriculation.toIso8601String())
+        ..setItem("exmatriculation", exmatriculation.toIso8601String());
     });
   }
 
   static void writeAppStatus(AppStatus status) async {
     _ownStorage.ready
         .then((_) => _ownStorage.setItem("appStatus", status.index));
+  }
+
+  static Future<StartupCheckData> startupCheck() async {
+    await _ownStorage.ready;
+    return StartupCheckData(
+        AccountType.values[_ownStorage.getItem("accountType")],
+        AppStatus.values[_ownStorage.getItem("appStatus")]);
   }
 
   static void clearAllData() async {
@@ -93,3 +115,10 @@ class ChatService {
 }
 
 enum AppStatus { GreeterPending, RegistrationPending, Operational }
+
+class StartupCheckData {
+  final AccountType accountType;
+  final AppStatus appStatus;
+
+  StartupCheckData(this.accountType, this.appStatus);
+}

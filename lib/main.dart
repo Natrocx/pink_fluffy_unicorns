@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     //ChatService.writeOwn(email: "s123456@student.dhbw-mannheim.de");
-    ChatService.clearAllData();
+    //ChatService.clearAllData();
 
     return MaterialApp(
         title: 'StudConnect',

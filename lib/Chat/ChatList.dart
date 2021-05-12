@@ -17,7 +17,7 @@ class ChatList extends StatefulWidget {
 }
 
 class _ChatListState extends State<ChatList> with WidgetsBindingObserver {
-  late Future<List<User>> usersWithChats;
+  late List<User> usersWithChats;
   final _scrollController = ScrollController(keepScrollOffset: false);
   final TextEditingController _addChatController = TextEditingController();
   final Key _addChatSubmit = Key("_addChatSubmitKey");
@@ -28,66 +28,61 @@ class _ChatListState extends State<ChatList> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
+    /*return FutureBuilder(
         future: usersWithChats,
         builder: (context, AsyncSnapshot<List<User>> snapshot) {
           if (!snapshot.hasData)
             return Center(child: CircularProgressIndicator());
+*/
+    if ((usersWithChats.length) > 0)
+      WidgetsBinding.instance!.addPostFrameCallback((_) => _scrollController
+          .animateTo(_scrollController.position.maxScrollExtent,
+              duration: Duration(milliseconds: 300),
+              curve: Curves.fastOutSlowIn));
 
-          if ((snapshot.data!.length) > 0)
-            WidgetsBinding.instance!.addPostFrameCallback((_) =>
-                _scrollController.animateTo(
-                    _scrollController.position.maxScrollExtent,
-                    duration: Duration(milliseconds: 300),
-                    curve: Curves.fastOutSlowIn));
-
-          var usersWithChats = snapshot.data ?? [];
-          var child = usersWithChats.isEmpty
-              ? Center(child: Text("Sie haben noch keine Chats."))
-              : ListView(
-                  children: usersWithChats
-                      .map((user) => GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => Chat(user)),
-                            );
-                          },
-                          child: Center(
-                              child: Padding(
-                                  padding: EdgeInsets.all(15),
-                                  child: Text(user.displayName)))))
-                      .toList(),
-                  shrinkWrap: true,
-                  reverse: true,
-                  controller: _scrollController,
-                );
-          return new Scaffold(
-              appBar: AppBar(
-                title: Text("Chats"),
-                leading: Builder(builder: (ctx) => Text("")),
-              ),
-              body: child,
-              floatingActionButton: Stack(children: [
-                IconButton(
-                  onPressed: () {
-                    showDialog(context: context, builder: _addRandomChatDialog);
-                  },
-                  icon: Icon(PinkFluffyUnicornsFonts.random),
-                ),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(0, 50, 0, 0),
-                  child: IconButton(
-                    onPressed: () {
-                      showDialog(
-                          context: context, builder: _buildAddChatDialog);
+    var child = usersWithChats.isEmpty
+        ? Center(child: Text("Sie haben noch keine Chats."))
+        : ListView(
+            children: usersWithChats
+                .map((user) => GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => Chat(user)),
+                      );
                     },
-                    icon: Icon(Icons.add),
-                  ),
-                ),
-              ]));
-        });
+                    child: Center(
+                        child: Padding(
+                            padding: EdgeInsets.all(15),
+                            child: Text(user.displayName)))))
+                .toList(),
+            shrinkWrap: true,
+            reverse: true,
+            controller: _scrollController,
+          );
+    return new Scaffold(
+        appBar: AppBar(
+          title: Text("Chats"),
+          leading: Builder(builder: (ctx) => Text("")),
+        ),
+        body: child,
+        floatingActionButton: Stack(children: [
+          IconButton(
+            onPressed: () {
+              showDialog(context: context, builder: _addRandomChatDialog);
+            },
+            icon: Icon(PinkFluffyUnicornsFonts.random),
+          ),
+          Padding(
+            padding: EdgeInsets.fromLTRB(0, 50, 0, 0),
+            child: IconButton(
+              onPressed: () {
+                showDialog(context: context, builder: _buildAddChatDialog);
+              },
+              icon: Icon(Icons.add),
+            ),
+          ),
+        ]));
   }
 
   Widget _buildAddChatDialog(BuildContext context) {

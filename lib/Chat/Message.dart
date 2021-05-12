@@ -1,22 +1,40 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../ChatService.dart';
 
+part 'Message.g.dart';
+
 @JsonSerializable()
+@HiveType(typeId: 2)
 class Message {
+  @HiveField(0)
   final String textContent;
+  @HiveField(1)
   late final DateTime dateTimeSent;
+  @HiveField(2)
   late final int id;
 
+  @HiveField(3)
   late final bool isOwn;
+  @HiveField(4)
   final String sender;
+  @HiveField(5)
   MessageStatus status = MessageStatus.Pending;
 
-  Message({required this.textContent, required this.sender}) {
+  Message(
+      {required this.textContent,
+      required this.dateTimeSent,
+      required this.id,
+      required this.isOwn,
+      required this.sender,
+      required this.status});
+
+  Message.withNow({required this.textContent, required this.sender}) {
     id = Random().nextInt(1 << 31);
     isOwn = ChatService.ownEMail() == sender;
     dateTimeSent = DateTime.now();
@@ -47,11 +65,21 @@ class Message {
       };
 }
 
+@HiveType(typeId: 3)
 enum MessageType {
+  @HiveField(0)
   Text,
 }
 
-enum MessageStatus { Pending, Failed, Successful }
+@HiveType(typeId: 4)
+enum MessageStatus {
+  @HiveField(0)
+  Pending,
+  @HiveField(1)
+  Failed,
+  @HiveField(2)
+  Successful
+}
 
 class MessageCard extends StatelessWidget {
   final Message message;

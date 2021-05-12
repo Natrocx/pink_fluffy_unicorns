@@ -14,7 +14,8 @@ class Greeter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: ChatService.startupCheck(),
+        future: ChatService.initialize()
+            .then((value) => ChatService.startupCheck()),
         builder: (context, AsyncSnapshot<StartupCheckData?> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(

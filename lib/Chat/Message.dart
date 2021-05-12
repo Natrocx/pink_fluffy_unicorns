@@ -3,13 +3,10 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
-import 'package:json_annotation/json_annotation.dart';
-
 import '../ChatService.dart';
 
 part 'Message.g.dart';
 
-@JsonSerializable()
 @HiveType(typeId: 2)
 class Message {
   @HiveField(0)

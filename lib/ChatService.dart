@@ -96,12 +96,7 @@ class ChatService {
   }
 
   static void clearAllData() async {
-    /*
-    for (User user in await ChatService.readAllChatPartners()) {
-      Hive.deleteBoxFromDisk(user.email);
-    }
-    */
-    Hive.deleteFromDisk(); // as we say in Germany: doppelt hält besser
+    Hive.deleteFromDisk();
   }
 }
 

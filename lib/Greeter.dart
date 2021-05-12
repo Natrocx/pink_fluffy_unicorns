@@ -299,123 +299,198 @@ class Login extends StatelessWidget {
   }
 }
 
-class StudentRegistration extends StatelessWidget {
+class StudentRegistration extends StatefulWidget {
   static const String routeName = "/StudentRegistration";
+
+  @override
+  State<StatefulWidget> createState() {
+    return StudentRegistrationState();
+  }
+}
+
+class StudentRegistrationState extends State<StudentRegistration> {
   DateTime? immatriculationDate;
   DateTime? exmatriculationDate;
   TextEditingController partnerController = TextEditingController();
   TextEditingController biographyController = TextEditingController();
 
+  String? majorCourse;
+  String? minorCourse;
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: Text("StudConnect - Profil"),
-        ),
-        body: Column(children: [
-          Table(columnWidths: <int, TableColumnWidth>{
-            0: MaxColumnWidth(IntrinsicColumnWidth(), FlexColumnWidth(1.0)),
-            1: FlexColumnWidth(4.0)
-          }, children: <TableRow>[
-            TableRow(children: [
-              Center(
-                child: Padding(
-                  padding: EdgeInsets.all(4.0),
-                  child: Text("*Studienstart:"),
-                ),
+    return FutureBuilder(
+      future: QueryService.getCourseInfo(),
+      builder: (context, AsyncSnapshot<Map<String, List<String>>> snapshot) {
+        if (snapshot.connectionState == ConnectionState.active ||
+            snapshot.connectionState == ConnectionState.waiting)
+          return CircularProgressIndicator();
+        else
+          return Scaffold(
+              appBar: AppBar(
+                title: Text("StudConnect - Profil"),
               ),
-              Padding(
-                padding: EdgeInsets.all(4.0),
-                child: DateTimeField(
-                  format: DateFormat("dd.MM.yyyy"),
-                  initialValue:
-                      null, //DateTime(DateTime.now().year - 1, 10, 1),
-                  enabled: true,
-                  decoration: InputDecoration(
-                      labelText: 'Immatrikulationsdatum',
-                      floatingLabelBehavior: FloatingLabelBehavior.never),
-                  onChanged: (dt) {
-                    immatriculationDate = dt;
-                  },
-                  onShowPicker: (BuildContext context, DateTime? currentValue) {
-                    return showDatePicker(
-                        context: context,
-                        firstDate: DateTime(DateTime.now().year - 4),
-                        initialDate: currentValue ?? DateTime.now(),
-                        lastDate: DateTime.now());
-                  },
-                ),
-              ),
-            ]),
-            TableRow(children: [
-              Center(
-                child: Padding(
-                  padding: EdgeInsets.all(4.0),
-                  child: Text("*Vorr. Ende:"),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.all(4.0),
-                child: DateTimeField(
-                  format: DateFormat("dd.MM.yyyy"),
-                  initialValue:
-                      null, //DateTime(DateTime.now().year - 1, 10, 1),
-                  enabled: true,
-                  decoration: InputDecoration(
-                      labelText: 'Vorrausichtliches Exmatrikulationsdatum',
-                      floatingLabelBehavior: FloatingLabelBehavior.never),
-                  onChanged: (dt) {
-                    exmatriculationDate = dt;
-                  },
-                  onShowPicker: (BuildContext context, DateTime? currentValue) {
-                    return showDatePicker(
-                        context: context,
-                        firstDate: DateTime(DateTime.now().year - 4),
-                        initialDate: currentValue ?? DateTime.now(),
-                        lastDate: DateTime.now().add(Duration(days: 365 * 4)));
-                  },
-                ),
-              ),
-            ]),
-            TableRow(children: [
-              Center(
-                child: Padding(
-                  padding: EdgeInsets.all(4.0),
-                  child: Text("Dualer Partner:"),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.all(4.0),
-                child: TextField(
-                  controller: partnerController,
-                ),
-              ),
-            ]),
-            TableRow(children: [
-              Center(
-                child: Padding(
-                  padding: EdgeInsets.all(4.0),
-                  child: Text("Biographie:"),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.all(4.0),
-                child: TextField(
-                  keyboardType: TextInputType.multiline,
-                  maxLines: 5,
-                  controller: biographyController,
-                ),
-              ),
-            ]),
-          ]),
-          Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: ElevatedButton(
-                      onPressed: () => _submit(context),
-                      child: Text("Übernehmen")))),
-        ]));
+              body: Column(children: [
+                Table(columnWidths: <int, TableColumnWidth>{
+                  0: MaxColumnWidth(
+                      IntrinsicColumnWidth(), FlexColumnWidth(1.0)),
+                  1: FlexColumnWidth(4.0)
+                }, children: <TableRow>[
+                  TableRow(children: [
+                    Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(4.0),
+                        child: Text("*Studiengang:"),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.all(4.0),
+                      child: DropdownButton(
+                        items: snapshot.data!.keys
+                            .map((e) => DropdownMenuItem(
+                                  value: e,
+                                  child: Text(e),
+                                ))
+                            .toList(),
+                        onChanged: (String? val) {
+                          setState(() => majorCourse = val);
+                        },
+                        value: majorCourse,
+                        isExpanded: true,
+                      ),
+                    ),
+                  ]),
+                  TableRow(children: [
+                    Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(4.0),
+                        child: Text("*Kurs:"),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.all(4.0),
+                      child: DropdownButton(
+                        items: majorCourse == null
+                            ? null
+                            : snapshot.data![majorCourse]!
+                                .map((e) => DropdownMenuItem(
+                                      value: e,
+                                      child: Text(e),
+                                    ))
+                                .toList(),
+                        onChanged: (String? val) {
+                          setState(() => minorCourse = val);
+                        },
+                        value: minorCourse,
+                        isExpanded: true,
+                      ),
+                    ),
+                  ]),
+                  TableRow(children: [
+                    Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(4.0),
+                        child: Text("*Studienstart:"),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.all(4.0),
+                      child: DateTimeField(
+                        format: DateFormat("dd.MM.yyyy"),
+                        initialValue:
+                            null, //DateTime(DateTime.now().year - 1, 10, 1),
+                        enabled: true,
+                        decoration: InputDecoration(
+                            labelText: 'Immatrikulationsdatum',
+                            floatingLabelBehavior: FloatingLabelBehavior.never),
+                        onChanged: (dt) {
+                          immatriculationDate = dt;
+                        },
+                        onShowPicker:
+                            (BuildContext context, DateTime? currentValue) {
+                          return showDatePicker(
+                              context: context,
+                              firstDate: DateTime(DateTime.now().year - 4),
+                              initialDate: currentValue ?? DateTime.now(),
+                              lastDate: DateTime.now());
+                        },
+                      ),
+                    ),
+                  ]),
+                  TableRow(children: [
+                    Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(4.0),
+                        child: Text("*Vorr. Ende:"),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.all(4.0),
+                      child: DateTimeField(
+                        format: DateFormat("dd.MM.yyyy"),
+                        initialValue:
+                            null, //DateTime(DateTime.now().year - 1, 10, 1),
+                        enabled: true,
+                        decoration: InputDecoration(
+                            labelText:
+                                'Vorrausichtliches Exmatrikulationsdatum',
+                            floatingLabelBehavior: FloatingLabelBehavior.never),
+                        onChanged: (dt) {
+                          exmatriculationDate = dt;
+                        },
+                        onShowPicker:
+                            (BuildContext context, DateTime? currentValue) {
+                          return showDatePicker(
+                              context: context,
+                              firstDate: DateTime(DateTime.now().year - 4),
+                              initialDate: currentValue ?? DateTime.now(),
+                              lastDate:
+                                  DateTime.now().add(Duration(days: 365 * 4)));
+                        },
+                      ),
+                    ),
+                  ]),
+                  TableRow(children: [
+                    Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(4.0),
+                        child: Text("Dualer Partner:"),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.all(4.0),
+                      child: TextField(
+                        controller: partnerController,
+                      ),
+                    ),
+                  ]),
+                  TableRow(children: [
+                    Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(4.0),
+                        child: Text("Biographie:"),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.all(4.0),
+                      child: TextField(
+                        keyboardType: TextInputType.multiline,
+                        maxLines: 5,
+                        controller: biographyController,
+                      ),
+                    ),
+                  ]),
+                ]),
+                Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: ElevatedButton(
+                            onPressed: () => _submit(context),
+                            child: Text("Übernehmen")))),
+              ]));
+      },
+    );
   }
 
   _submit(BuildContext ctx) async {

@@ -26,4 +26,23 @@ class QueryService {
     return User(email, firstName + " " + lastName, -1111,
         email.startsWith("d") ? AccountType.Dozent : AccountType.Student);
   }
+
+  static Future<List<String>> getMajorCouseList() async {
+    return ["AI - Angewandte Informatik", "Uncoole Studiengänge"];
+  }
+
+  static Future<List<String>> getPossibleMinorCourses(
+      String majorCourse) async {
+    return ["TINF20AI1", "der Lappen-Kurs"];
+  }
+
+  static Future<Map<String, List<String>>> getCourseInfo() async {
+    var majorCourses = await getMajorCouseList();
+    Map<String, List<String>> majorWithMinorCourseDetails = Map();
+    for (var course in majorCourses) {
+      majorWithMinorCourseDetails[course] =
+          await getPossibleMinorCourses(course);
+    }
+    return majorWithMinorCourseDetails;
+  }
 }

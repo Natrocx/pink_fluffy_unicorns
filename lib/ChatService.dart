@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:pink_fluffy_unicorns/User.dart';

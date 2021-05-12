@@ -21,8 +21,7 @@ class Greeter extends StatelessWidget {
               child: CircularProgressIndicator(),
             );
           }
-          if (snapshot.connectionState == ConnectionState.done ||
-              snapshot.connectionState == ConnectionState.none) {
+          if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.data!.appStatus == AppStatus.Operational)
               return ChatList();
             else if (snapshot.data!.appStatus ==

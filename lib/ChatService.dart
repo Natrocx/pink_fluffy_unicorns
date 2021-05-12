@@ -99,9 +99,13 @@ class ChatService {
 
   static Future<StartupCheckData> startupCheck() async {
     await _ownStorage.ready;
+    int? _accountType = _ownStorage.getItem("accountType");
+    int? _appStatus = _ownStorage.getItem("appStatus");
     return StartupCheckData(
-        AccountType.values[_ownStorage.getItem("accountType")],
-        AppStatus.values[_ownStorage.getItem("appStatus")]);
+        _accountType == null ? null : AccountType.values[_accountType],
+        _appStatus == null
+            ? AppStatus.GreeterPending
+            : AppStatus.values[_appStatus]);
   }
 
   static void clearAllData() async {
@@ -117,7 +121,7 @@ class ChatService {
 enum AppStatus { GreeterPending, RegistrationPending, Operational }
 
 class StartupCheckData {
-  final AccountType accountType;
+  final AccountType? accountType;
   final AppStatus appStatus;
 
   StartupCheckData(this.accountType, this.appStatus);

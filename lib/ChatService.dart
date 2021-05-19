@@ -96,7 +96,10 @@ class ChatService {
   }
 
   static void clearAllData() async {
-    Hive.deleteFromDisk();
+    for (var chatPartner in ChatService.readAllChatPartners()) {
+      deleteChat(chatPartner);
+    }
+    Hive.deleteBoxFromDisk("own");
   }
 
   static void deleteChat(User user) {

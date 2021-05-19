@@ -23,6 +23,7 @@ class Greeter extends StatelessWidget {
             );
           }
           if (snapshot.connectionState == ConnectionState.done) {
+            //ChatService.clearAllData();
             if (snapshot.data!.appStatus == AppStatus.Operational)
               return ChatList();
             else if (snapshot.data!.appStatus ==
@@ -57,15 +58,28 @@ class Greeter extends StatelessWidget {
   }
 }
 
-class Registration extends StatelessWidget {
+class Registration extends StatefulWidget {
+  Registration({Key? key}) : super(key: key);
+
+  @override
+  State<Registration> createState() => _RegistrationState();
+}
+
+class _RegistrationState extends State<Registration> {
   final TextEditingController _emailController = TextEditingController();
+
   final TextEditingController _firstNameController = TextEditingController();
+
   final TextEditingController _lastNameController = TextEditingController();
+
   final TextEditingController _passwordController = TextEditingController();
+
   final TextEditingController _passwordConfirmationController =
       TextEditingController();
 
-  Registration({Key? key}) : super(key: key);
+  final TextEditingController _emailVerificationController =
+      TextEditingController();
+  bool _emailVerificationActive = false;
 
   @override
   Widget build(BuildContext context) {
@@ -153,7 +167,19 @@ class Registration extends StatelessWidget {
               obscureText: true,
             ),
           ),
-        ])
+        ]),
+        TableRow(children: [
+          Center(
+              child: Padding(
+                  child: Text("Verifizierungscode:"),
+                  padding: EdgeInsets.all(4.0))),
+          Padding(
+              padding: EdgeInsets.all(4.0),
+              child: TextField(
+                  keyboardType: TextInputType.number,
+                  controller: _emailVerificationController,
+                  enabled: _emailVerificationActive))
+        ]),
       ]),
       Expanded(child: Text("Rechtliche Hinweise")),
       Padding(
@@ -165,7 +191,6 @@ class Registration extends StatelessWidget {
     ]);
   }
 
-  // thou shalt not touch this cursed function, for suffering will come upon thy soul if thou doeth not heed my warning
   _submit(BuildContext context) async {
     var studentEmailValidator = RegExp(r"s\d*@(student\.)?dhbw\-mannheim\.de");
     var dozentEmailValidator = RegExp(r"d\d*@(dozent\.)?dhbw\-mannheim\.de");
@@ -176,35 +201,62 @@ class Registration extends StatelessWidget {
         _emailController.text.isNotEmpty) {
       if (_passwordController.text == _passwordConfirmationController.text) {
         if (studentEmailValidator.hasMatch(_emailController.text)) {
-          var loginResult = await QueryService.register(
-              _emailController.text,
-              _passwordController.text,
-              _firstNameController.text,
-              _lastNameController.text);
-          if (loginResult != null) {
-            ChatService.writeOwn(
-                email: loginResult.email,
-                password: _passwordController.text,
-                accountType: loginResult.accountType);
-            ChatService.writeAppStatus(AppStatus.RegistrationPending);
-            Navigator.popAndPushNamed(context, StudentRegistration.routeName);
+          if (_emailVerificationActive == false) {
+            setState(() => _emailVerificationActive = true);
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text(
+                    "Eine E-Mail mit einem Verifizierungscode wurde an Sie versendet.")));
+
+            return;
+          } else if (await QueryService.checkEmailVerificationCode(
+              _emailVerificationController.text)) {
+            var loginResult = await QueryService.register(
+                _emailController.text,
+                _passwordController.text,
+                _firstNameController.text,
+                _lastNameController.text);
+            if (loginResult != null) {
+              ChatService.writeOwn(
+                  email: loginResult.email,
+                  password: _passwordController.text,
+                  accountType: loginResult.accountType);
+              ChatService.writeAppStatus(AppStatus.RegistrationPending);
+              Navigator.popAndPushNamed(context, StudentRegistration.routeName);
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text(
+                      "Der E-Mail-Verifizierungscode ist nicht korrekt.")));
+            }
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text("Registrierung ist fehlgeschlagen.")));
           }
         } else if (dozentEmailValidator.hasMatch(_emailController.text)) {
-          var loginResult = await QueryService.register(
-              _emailController.text,
-              _passwordController.text,
-              _firstNameController.text,
-              _lastNameController.text);
-          if (loginResult != null) {
-            ChatService.writeOwn(
-                email: loginResult.email,
-                password: _passwordController.text,
-                accountType: loginResult.accountType);
-            ChatService.writeAppStatus(AppStatus.RegistrationPending);
-            Navigator.popAndPushNamed(context, DozentRegistration.routeName);
+          if (_emailVerificationActive == false) {
+            setState(() => _emailVerificationActive = true);
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text(
+                    "Eine E-Mail mit einem Verifizierungscode wurde an Sie versendet.")));
+            return;
+          } else if (await QueryService.checkEmailVerificationCode(
+              _emailVerificationController.text)) {
+            var loginResult = await QueryService.register(
+                _emailController.text,
+                _passwordController.text,
+                _firstNameController.text,
+                _lastNameController.text);
+            if (loginResult != null) {
+              ChatService.writeOwn(
+                  email: loginResult.email,
+                  password: _passwordController.text,
+                  accountType: loginResult.accountType);
+              ChatService.writeAppStatus(AppStatus.RegistrationPending);
+              Navigator.popAndPushNamed(context, DozentRegistration.routeName);
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text(
+                      "Der E-Mail-Verifizierungscode ist nicht korrekt.")));
+            }
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text("Registrierung ist fehlgeschlagen.")));
@@ -225,8 +277,14 @@ class Registration extends StatelessWidget {
   }
 }
 
-class Login extends StatelessWidget {
+class Login extends StatefulWidget {
+  @override
+  State<Login> createState() => _LoginState();
+}
+
+class _LoginState extends State<Login> {
   final TextEditingController _emailController = TextEditingController();
+
   final TextEditingController _passwordController = TextEditingController();
 
   @override
@@ -305,11 +363,11 @@ class StudentRegistration extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    return StudentRegistrationState();
+    return _StudentRegistrationState();
   }
 }
 
-class StudentRegistrationState extends State<StudentRegistration> {
+class _StudentRegistrationState extends State<StudentRegistration> {
   DateTime? immatriculationDate;
   DateTime? exmatriculationDate;
   TextEditingController partnerController = TextEditingController();

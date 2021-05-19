@@ -45,4 +45,8 @@ class QueryService {
     }
     return majorWithMinorCourseDetails;
   }
+
+  static Future<bool> checkEmailVerificationCode(String code) async {
+    return true;
+  }
 }

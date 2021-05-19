@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:pink_fluffy_unicorns/QueryService.dart';
 import 'package:pink_fluffy_unicorns/pink_fluffy_unicorns_fonts_icons.dart';
@@ -50,6 +51,25 @@ class _ChatListState extends State<ChatList> with WidgetsBindingObserver {
                         context,
                         MaterialPageRoute(builder: (context) => Chat(user)),
                       );
+                    },
+                    onLongPressStart: (LongPressStartDetails details) async {
+                      await showMenu(
+                          context: context,
+                          position: RelativeRect.fromLTRB(
+                            details.globalPosition.dx,
+                            details.globalPosition.dy,
+                            100000, // DONT TOUCH! this is a workaround for the beautifully bugged positioning
+                            0,
+                          ),
+                          items: [
+                            PopupMenuItem(child: Text("Löschen"), value: 0),
+                          ]).then((value) => setState(() {
+                            if (value == 0) {
+                              ChatService.deleteChat(user);
+                              usersWithChats.removeWhere(
+                                  (element) => element.id == user.id);
+                            }
+                          }));
                     },
                     child: Center(
                         child: Padding(
@@ -171,6 +191,7 @@ class _ChatListState extends State<ChatList> with WidgetsBindingObserver {
     WidgetsBinding.instance!.addObserver(this);
   }
 
+  // This method is bugged and called twice. Unlucky I guess!
   @override
   void dispose() {
     WidgetsBinding.instance!.removeObserver(this);

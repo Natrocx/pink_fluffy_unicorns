@@ -98,6 +98,10 @@ class ChatService {
   static void clearAllData() async {
     Hive.deleteFromDisk();
   }
+
+  static void deleteChat(User user) {
+    Hive.deleteBoxFromDisk(user.email);
+  }
 }
 
 @HiveType(typeId: 5)

@@ -46,7 +46,15 @@ class QueryService {
     return majorWithMinorCourseDetails;
   }
 
-  static Future<bool> checkEmailVerificationCode(String code) async {
+  static Future<bool> submitEmailVerificationCode(String code) async {
+    return true;
+  }
+
+  static Future<bool> sendPasswordResetVerificationCode() async {
+    return true;
+  }
+
+  static Future<bool> submitPasswortReset(String code, String password) async {
     return true;
   }
 }

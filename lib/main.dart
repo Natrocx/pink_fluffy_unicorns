@@ -3,7 +3,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:pink_fluffy_unicorns/Greeter.dart';
 
 import 'Chat/ChatList.dart';
-import 'ChatService.dart';
 
 void main() {
   runApp(PinkFluffyUnicornsApp());
@@ -33,6 +32,7 @@ class PinkFluffyUnicornsApp extends StatelessWidget {
               ExtractArgumentsChatScreen(),
           StudentRegistration.routeName: (ctx) => StudentRegistration(),
           DozentRegistration.routeName: (ctx) => DozentRegistration(),
+          PasswordResetView.routeName: (ctx) => PasswordResetView(),
         });
   }
 }

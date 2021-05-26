@@ -147,8 +147,8 @@ class _ChatListState extends State<ChatList> with WidgetsBindingObserver {
   }
 
   void _addChatInternal(User user) async {
-    (await usersWithChats).add(user);
-    var scroll = (await usersWithChats).length > 1;
+    (usersWithChats).add(user);
+    var scroll = (usersWithChats).length > 1;
 
     setState(() {
       if (scroll) _addChatController.clear();

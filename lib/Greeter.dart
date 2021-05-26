@@ -208,7 +208,7 @@ class _RegistrationState extends State<Registration> {
                     "Eine E-Mail mit einem Verifizierungscode wurde an Sie versendet.")));
 
             return;
-          } else if (await QueryService.checkEmailVerificationCode(
+          } else if (await QueryService.submitEmailVerificationCode(
               _emailVerificationController.text)) {
             var loginResult = await QueryService.register(
                 _emailController.text,
@@ -238,7 +238,7 @@ class _RegistrationState extends State<Registration> {
                 content: Text(
                     "Eine E-Mail mit einem Verifizierungscode wurde an Sie versendet.")));
             return;
-          } else if (await QueryService.checkEmailVerificationCode(
+          } else if (await QueryService.submitEmailVerificationCode(
               _emailVerificationController.text)) {
             var loginResult = await QueryService.register(
                 _emailController.text,
@@ -327,6 +327,15 @@ class _LoginState extends State<Login> {
         ]),
       ]),
       Padding(
+        padding: EdgeInsets.all(8.0),
+        child: TextButton(
+          onPressed: () {
+            Navigator.pushNamed(context, PasswordResetView.routeName);
+          },
+          child: Text("Passwort zurücksetzen"),
+        ),
+      ),
+      Padding(
           padding: EdgeInsets.all(8.0),
           child: Align(
               alignment: Alignment.bottomCenter,
@@ -354,6 +363,134 @@ class _LoginState extends State<Login> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text("Bitte füllen Sie alle mit * markierten Felder aus.")));
+    }
+  }
+}
+
+class PasswordResetView extends StatefulWidget {
+  static const String routeName = "/passwordReset";
+
+  @override
+  State<StatefulWidget> createState() {
+    return _PasswordResetViewState();
+  }
+}
+
+class _PasswordResetViewState extends State<PasswordResetView> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _confirmationCodeController =
+      TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _passwordConfirmationController =
+      TextEditingController();
+
+  bool emailSubmitted = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: Text("Password zurücksetzen"),
+        ),
+        body: Column(children: [
+          Table(columnWidths: <int, TableColumnWidth>{
+            0: MaxColumnWidth(IntrinsicColumnWidth(), FlexColumnWidth(1.0)),
+            1: FlexColumnWidth(4.0)
+          }, children: <TableRow>[
+            TableRow(children: [
+              Padding(
+                padding: EdgeInsets.all(4.0),
+                child: Text("*E-Mail:"),
+              ),
+              Padding(
+                padding: EdgeInsets.all(4.0),
+                child: TextField(
+                  controller: _emailController,
+                ),
+              )
+            ]),
+            emailSubmitted
+                ? TableRow(children: [
+                    Padding(
+                      padding: EdgeInsets.all(4.0),
+                      child: Text("*Verifizierungscode:"),
+                    ),
+                    Padding(
+                        padding: EdgeInsets.all(4.0),
+                        child: TextField(
+                          controller: _confirmationCodeController,
+                        )),
+                  ])
+                : TableRow(children: [SizedBox.shrink(), SizedBox.shrink()]),
+            emailSubmitted
+                ? TableRow(children: [
+                    Padding(
+                      padding: EdgeInsets.all(4.0),
+                      child: Text("*Neues Passwort:"),
+                    ),
+                    Padding(
+                        padding: EdgeInsets.all(4.0),
+                        child: TextField(
+                          controller: _passwordController,
+                          keyboardType: TextInputType.visiblePassword,
+                          obscureText: true,
+                        )),
+                  ])
+                : TableRow(children: [SizedBox.shrink(), SizedBox.shrink()]),
+            emailSubmitted
+                ? TableRow(children: [
+                    Padding(
+                      padding: EdgeInsets.all(4.0),
+                      child: Text("*Neues Passwort wiederholen:"),
+                    ),
+                    Padding(
+                        padding: EdgeInsets.all(4.0),
+                        child: TextField(
+                          controller: _passwordConfirmationController,
+                          keyboardType: TextInputType.visiblePassword,
+                          obscureText: true,
+                        )),
+                  ])
+                : TableRow(children: [SizedBox.shrink(), SizedBox.shrink()]),
+          ]),
+          Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: ElevatedButton(
+                      onPressed: () => _continue(context),
+                      child: Text("Weiter")))),
+        ]));
+  }
+
+  _continue(BuildContext context) async {
+    if (!emailSubmitted) {
+      if (await QueryService.sendPasswordResetVerificationCode()) {
+        setState(() => emailSubmitted = true);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Die E-Mail existiert nicht im System.")));
+      }
+    } else {
+      if (_passwordController.text == _passwordConfirmationController.text &&
+          _confirmationCodeController.text.isNotEmpty &&
+          _passwordConfirmationController.text.isNotEmpty) {
+        if (!await QueryService.submitPasswortReset(
+            _confirmationCodeController.text, _passwordController.text)) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(
+                  "Bitte überprüfen Sie den eingegebenen Verifizierungscode.")));
+        } else {
+          // passwordreset successful
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text("Ihr Passwort wurde erfolgreich zurück gesetzt"),
+          ));
+          Navigator.pop(context);
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Bitte überprüfen Sie Ihre Eingabe.")));
+      }
     }
   }
 }
